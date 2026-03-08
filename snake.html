@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Snake Game</title>
+<link rel="stylesheet" href="style.css">
+<style>
+/* Snake game container */
+#gameContainer {
+    width: 400px;
+    height: 400px;
+    background: linear-gradient(135deg, #fff7e6, #ffd699);
+    margin: 50px auto;
+    border: 3px solid #ff7f50;
+    border-radius: 20px;
+    position: relative;
+}
+
+#score {
+    text-align: center;
+    font-size: 24px;
+    color: #ff6600;
+    margin-top: 20px;
+}
+</style>
+</head>
+<body>
+
+<h1 style="text-align:center; color:#ff6600;">Snake Game 🐍</h1>
+<div id="score">Score: 0</div>
+<div id="gameContainer"></div>
+
+<script>
+const container = document.getElementById("gameContainer");
+const scoreDisplay = document.getElementById("score");
+
+const blockSize = 20;
+const rows = container.clientHeight / blockSize;
+const cols = container.clientWidth / blockSize;
+
+let snake = [{x:5, y:5}];
+let direction = {x:1, y:0};
+let food = {x:10, y:10};
+let score = 0;
+
+function draw() {
+    container.innerHTML = "";
+    // Draw snake
+    snake.forEach((segment, index) => {
+        const div = document.createElement("div");
+        div.style.width = blockSize + "px";
+        div.style.height = blockSize + "px";
+        div.style.position = "absolute";
+        div.style.left = segment.x * blockSize + "px";
+        div.style.top = segment.y * blockSize + "px";
+        div.style.background = index===0?"#ff6600":"#ffd700";
+        div.style.borderRadius = "5px";
+        container.appendChild(div);
+    });
+    // Draw food
+    const foodDiv = document.createElement("div");
+    foodDiv.style.width = blockSize + "px";
+    foodDiv.style.height = blockSize + "px";
+    foodDiv.style.position = "absolute";
+    foodDiv.style.left = food.x * blockSize + "px";
+    foodDiv.style.top = food.y * blockSize + "px";
+    foodDiv.style.background = "#ff0000";
+    foodDiv.style.borderRadius = "50%";
+    container.appendChild(foodDiv);
+}
+
+function moveSnake() {
+    const head = {x: snake[0].x + direction.x, y: snake[0].y + direction.y};
+
+    // Wall collision
+    if(head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows || snake.some(s => s.x===head.x && s.y===head.y)){
+        alert("Game Over! Your score: " + score);
+        snake = [{x:5,y:5}];
+        direction = {x:1, y:0};
+        score = 0;
+        scoreDisplay.textContent = "Score: 0";
+        return;
+    }
+
+    snake.unshift(head);
+
+    // Food eaten
+    if(head.x === food.x && head.y === food.y){
+        score++;
+        scoreDisplay.textContent = "Score: " + score;
+        generateFood();
+    } else {
+        snake.pop();
+    }
+}
+
+function generateFood(){
+    food.x = Math.floor(Math.random() * cols);
+    food.y = Math.floor(Math.random() * rows);
+}
+
+document.addEventListener("keydown", (e)=>{
+    switch(e.key){
+        case "ArrowUp": if(direction.y===0) direction={x:0,y:-1}; break;
+        case "ArrowDown": if(direction.y===0) direction={x:0,y:1}; break;
+        case "ArrowLeft": if(direction.x===0) direction={x:-1,y:0}; break;
+        case "ArrowRight": if(direction.x===0) direction={x:1,y:0}; break;
+    }
+});
+
+setInterval(()=>{
+    moveSnake();
+    draw();
+}, 200);
+</script>
+
+</body>
+</html>
